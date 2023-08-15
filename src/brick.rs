@@ -5,12 +5,16 @@ use crate::collider::Collider;
 pub struct BrickPlugin;
 impl Plugin for BrickPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, setup);
+        app.add_event::<BrickDespawnEvent>()
+            .add_systems(Startup, setup);
     }
 }
 
 #[derive(Component)]
 pub struct Brick;
+
+#[derive(Debug, Event)]
+pub struct BrickDespawnEvent;
 
 pub const BRICK_WIDTH: f32 = 10.0;
 pub const BRICK_HEIGHT: f32 = 10.0;

@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{collider::Collider, wall::WALL_WIDTH};
+use crate::{brick::BRICK_WIDTH, collider::Collider, wall::WALL_WIDTH};
 
 pub struct PaddlePlugin;
 impl Plugin for PaddlePlugin {
@@ -16,11 +16,11 @@ pub const PADDLE_WIDTH: f32 = 300.0;
 pub const PADDLE_HEIGHT: f32 = 10.0;
 pub const PADDLE_POS_Y: f32 = -300.0;
 
-const MIN_X: f32 = -WALL_WIDTH / 2.0 + PADDLE_WIDTH / 2.0;
+const MIN_X: f32 = -WALL_WIDTH / 2.0 + PADDLE_WIDTH / 2.0 + BRICK_WIDTH;
 const MAX_X: f32 = -MIN_X;
 
 #[derive(Debug, Component)]
-pub struct Paddle;
+pub struct Paddle(pub f32);
 
 fn setup(mut commands: Commands) {
     commands.spawn((
@@ -37,17 +37,17 @@ fn setup(mut commands: Commands) {
             },
             ..default()
         },
-        Paddle,
+        Paddle(0.0),
         Collider,
     ));
 }
 
 fn move_paddle(
-    mut query_paddle: Query<&mut Transform, With<Paddle>>,
+    mut query_paddle: Query<(&mut Transform, &mut Paddle), With<Paddle>>,
     keys: ResMut<Input<KeyCode>>,
     time_step: Res<FixedTime>,
 ) {
-    let mut t = query_paddle.single_mut();
+    let (mut t, mut paddle) = query_paddle.single_mut();
     let mut direction = 0.0_f32;
     if keys.pressed(KeyCode::A) {
         direction = -1.0;
@@ -57,4 +57,5 @@ fn move_paddle(
 
     t.translation.x += direction * time_step.period.as_secs_f32() * SPEED;
     t.translation.x = t.translation.x.min(MAX_X).max(MIN_X);
+    paddle.0 = direction;
 }
