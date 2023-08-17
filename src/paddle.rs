@@ -1,13 +1,18 @@
 use bevy::prelude::*;
 
-use crate::{brick::BRICK_WIDTH, collider::Collider, wall::WALL_WIDTH};
+use crate::{brick::BRICK_WIDTH, collider::Collider, game_state::GameState, wall::WALL_WIDTH};
 
 pub struct PaddlePlugin;
 impl Plugin for PaddlePlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(FixedTime::new_from_secs(1.0 / 60.0))
             .add_systems(Startup, setup)
-            .add_systems(FixedUpdate, move_paddle);
+            .add_systems(OnEnter(GameState::BallIdle), restart)
+            .add_systems(
+                FixedUpdate,
+                move_paddle
+                    .run_if(in_state(GameState::BallIdle).or_else(in_state(GameState::BallFly))),
+            );
     }
 }
 
@@ -40,6 +45,11 @@ fn setup(mut commands: Commands) {
         Paddle(0.0),
         Collider,
     ));
+}
+
+fn restart(mut query_paddle: Query<&mut Transform, With<Paddle>>) {
+    let mut t = query_paddle.single_mut();
+    t.translation = Vec3::new(0.0, PADDLE_POS_Y, 0.0);
 }
 
 fn move_paddle(

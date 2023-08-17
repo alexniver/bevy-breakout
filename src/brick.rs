@@ -1,12 +1,12 @@
 use bevy::prelude::*;
 
-use crate::collider::Collider;
+use crate::{collider::Collider, game_state::GameState};
 
 pub struct BrickPlugin;
 impl Plugin for BrickPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<BrickDespawnEvent>()
-            .add_systems(Startup, setup);
+            .add_systems(OnEnter(GameState::BallIdle), (cleanup.before(setup), setup));
     }
 }
 
@@ -51,5 +51,11 @@ fn setup(mut commands: Commands) {
                 Collider,
             ));
         }
+    }
+}
+
+fn cleanup(mut commands: Commands, query_brick: Query<Entity, With<Brick>>) {
+    for entity in query_brick.iter() {
+        commands.entity(entity).despawn();
     }
 }

@@ -1,7 +1,12 @@
 use bevy::{prelude::*, window::close_on_esc};
 use bevy_breakout::{
-    ball::BallPlugin, brick::BrickPlugin, game_state::GameState, paddle::PaddlePlugin,
-    score::ScorePlugin, ui::UiPlugin, wall::WallPlugin,
+    ball::BallPlugin,
+    brick::BrickPlugin,
+    game_state::{GameState, GameStatePlugin},
+    paddle::PaddlePlugin,
+    score::ScorePlugin,
+    ui::UiPlugin,
+    wall::WallPlugin,
 };
 
 fn main() {
@@ -14,6 +19,7 @@ fn main() {
         .add_plugins(BallPlugin)
         .add_plugins(ScorePlugin)
         .add_plugins(UiPlugin)
+        .add_plugins(GameStatePlugin)
         .add_systems(Startup, setup)
         .add_systems(Update, close_on_esc)
         .run();
