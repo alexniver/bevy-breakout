@@ -82,7 +82,7 @@ fn ball_collide(
     mut commands: Commands,
     mut query_ball: Query<(&mut Transform, &mut Velocity), With<Ball>>,
     mut query_collider: Query<
-        (Entity, &Transform, Option<&Brick>),
+        (Entity, &Transform, Option<&Brick>, Option<&Paddle>),
         (With<Collider>, Without<Ball>),
     >,
     mut brick_despawn_event_writer: EventWriter<BrickDespawnEvent>,
@@ -102,7 +102,7 @@ fn ball_collide(
     let ball_size = t_ball.scale.truncate();
 
     // ball collide with brick
-    for (entity, t_collider, option_brick) in query_collider.iter_mut() {
+    for (entity, t_collider, option_brick, option_paddle) in query_collider.iter_mut() {
         let collider_pos = t_collider.translation;
         let collider_size = t_collider.scale.truncate();
         if let Some(collision) = collide(ball_pos, ball_size, collider_pos, collider_size) {
@@ -119,9 +119,9 @@ fn ball_collide(
                 bevy::sprite::collide_aabb::Collision::Inside => {}
             }
 
-            // if let Some(paddle) = option_paddle {
-            //     velocity.v.x += paddle.0 * 0.1;
-            // }
+            if let Some(paddle) = option_paddle {
+                velocity.v.x += paddle.0 * 0.1;
+            }
             return;
         }
     }
